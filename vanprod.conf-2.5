@@ -1,0 +1,250 @@
+# This is the vanprod.conf file.  vanprod will re-read this file 
+# when it receives a HUP signal.  
+# Typical unix config file rules apply here.  You may use whitespace
+# before and/or after the = signs or you may omit the whitespace around
+# the = altogether, your choice -- vanprod won't care. Blank lines and 
+# everything following a # character is treated as a comment.  
+# Leading and trailing whitespace are stripped out as the file is parsed
+# The variables here should all be lower case.  vanprod does not use
+# upper case variables.  You do not need to quote any values,
+# free form strings are allowed.  The value terminates with a new line
+# character, unless a # is encountered first, which may be preceeded by 
+# optional whitespace.
+
+
+# tty defines where your Vantage Pro is connected
+
+tty = /dev/ttyS1
+
+# which facility would you like to use for syslog
+
+facility = local0
+
+# The working directory for vanprod.  The currentobs, dailyobs,
+# and extremes files will be written here
+
+directory = /some/path/to/weather
+
+# Where do you want the daemon to write a file containing
+# it pid?  
+
+piddir = /var/run 
+
+# This defines whether or not to update weather underground
+# If this is set to 1 yes or true, vanprod will attempt to send data to
+# weather underground in normal mode.  If set to 2 or rapid, rapid fire
+# mode will be enabled.  Any other value here will be interpreted as false.
+
+send_to_wu = 1 
+
+# Same as above, only for APRSWXNET/CWOP -- Note rapid fire mode not supported.
+# If you are not familiar with what this is and for info on signing up,
+# see http://www.wxqa.com
+
+send_to_cwop = 1
+
+# This is a comma seperate list of the minutes past the hour that you wish
+# to send an update to weatherunderground if you are using normal mode updates.
+
+update_wu_min = 0,5,10,15,20,25,30,35,40,45,50,55
+
+# CWOP updates are now coded to occur every 10 minutes if you are sending to CWOP.
+# This is in accordance with guidelines from the CWOP program.  Set this to the
+# value of the minute during each 10 when you should send your updates.
+# Your update minute should be equal to the last digit in your CWOP ID.  
+# For hams, use your station ID assigned to you from MADIS.
+# Example: My station ID is AR536, so my setting for this value would be 6.
+# This will result in updates being sent to CWOP at 6, 16, 26, 36, 46, 
+# and 56 past the hour.
+
+update_cwop_min = 3 
+
+# This is for your station ID on weather underground
+
+wu_id = 
+
+# Your weather underground password
+
+wu_password = 
+
+# Your ham callsign or CWOP ID for APRSWXNET/CWOP  Use upper case in the value 
+# I do recommend that you use an elevation of 0 on your Vantage Pro console, 
+# especially if you are reporting or plan to report to APRSWXNET/CWOP.  The 
+# number they expect to have provided is the altimeter.  The only way to have
+# the Vantage Pro report this is by using 0 for your elevation.  
+# See the section OTHER NOTES AND THOUGHTS in the vanprod documentation 
+# for details about this.
+
+callsign = CW9999
+
+# Your cwop password if you are a ham operator and have one.  
+# This password allows packets coming from licensed ham operators to be 
+# validated and passed on to an RF (amateur packet radio) network by an
+# Igate.  If you are a licensed ham and would like to enable the possibility
+# for your weather data to be broadcast on a local packet radio network,
+# set your passcode here.  To obtain your passcode, you may send your
+# callsign to Russell.B.Chadwick@noaa.gov or I will be happy to provide
+# this information for you.  Again , just e-mail your callsign to me at 
+# stsander@sblan.net.  73 de N5KJT
+# Folks using a CW#### Id (i.e. non-hams) should leave this set to  -1
+
+cwop_password = -1
+
+# This is the order in which a connection attempt is made to the cwop servers
+# if you are sending to cwop.  Using cwop.aprs.net or rotate.aprs.net first 
+# is reccommended.  cwop.aprs.net is primarily for non-hams and rotate.aprs.net
+# is primarily for hams.  
+# The software will automatically fail over to the next in the list if one
+# server is found to not be responding correctly.  If you wish, you may 
+# change the order of cwop1 through cwop4.  Also, you may add as many entries
+# here as you like.  The servers you list here must accept connections on port
+# 14580.
+
+cwop0 = cwop.aprs.net
+cwop1 = first.aprs.net  # College Station, TX - Gerry Creager, N5JXS
+cwop2 = second.aprs.net # Claremont, CA - Greg Noneman, WB6ZSU
+cwop3 = third.aprs.net  # Dallas, TX - Jason Winningham, KG4WSV
+cwop4 = rotate.aprs.net
+
+# Your latitude and longitude.  These are used for APRSWXNET/CWOP reports.
+# The format for latitude is exactly 4 digits followed by a decimal then
+# 2 digits followed by an uppercase hemisphere designator.  The digits are ddmm.mm
+# where d is degrees m is minutes carried out to a resolution of 1/100th
+# (.01) of a minute.  Be sure to insert leading zeros as needed. 
+# The longitude is identical except there are 3 digits required for the
+# degrees, so it becomes dddmm.mm.  If you make a formatting error,
+# the daemon will write a warning to your syslog and not send any data to
+# APRSWXNET/CWOP.
+# This follows the LORAN format if you wish to find more details.
+
+lat = ddmm.mmN
+lon = dddmm.mmW
+
+# This variable allows you to temporarily disable a sensor or sensors
+# from being included in updates sent to Weatherunderground and CWOP
+# and stored in the RRDs.  This variable is used as a bitmask to exclude 
+# the various sensors. The values for the sensors are as follows:
+# 1 = Outdoor Temperature
+# 2 = Barometer
+# 4 = Wind Speed
+# 8 = Wind Direction
+# 16 = Outdoor Humidity
+# 32 = Rainfall
+# To exclude more than one sensor add the values for the sensors together.
+# For example:  To exclude Wind Speed and Direction set this to 12.  
+# To exclude Temperature and Humidity set it to 17.  
+# The setting of this variable only affects updates to WU, CWOP, and the RRDs.  
+# It has no impact on the text files written by the daemon or the values 
+# stored in the mysql database.
+
+sensor_exclude = 0
+
+# This setting is for your barometer offset expressed in millibars.  
+# (.01 inches of mercury = .338637526 millibars)  This only affects 
+# calculations within the daemon and not the console.  Any offset you have set 
+# on the console is ignored by the daemon and needs to be set here to be seen 
+# by the daemon.  This value, of course, can be positive or negative.
+
+bar_offset = 0
+
+# how many of the daily observations files to keep.  Set to -1 if you
+# want to keep them forever or clean them up yourself.
+
+oldobs = 7 
+
+# type of database we're talking to
+
+db = mysql
+
+# The name of the database  
+
+db_name = weather 
+
+# name of db user that can add records
+
+db_user =  
+
+# password for user above
+
+db_password =  
+
+# name of db table for values to be inserted
+
+db_table = reports 
+
+# If you have a wireless Vantage Pro with extra sensors, you can assign 
+# some meaningful descriptions here by assigning values to the different
+# transmitter ID's (tid0 through tid7)  The factory default for tid0
+# is the Integrated Sensor Suite, although the Davis documentation
+# indicates you can change this.  This is used to monitor the battery
+# level in these transmitters.
+
+tid0 = ISS  # Integrated Sensor Suite - Factory default
+tid1 = ID 2
+tid2 = ID 3
+tid3 = ID 4
+tid4 = ID 5
+tid5 = ID 6
+tid6 = ID 7
+tid7 = ID 8
+
+# This controls how often action is taken in response to an alarm.  The value
+# should be expressed in seconds as it will be internally adjusted by the loop
+# ratio.
+
+alarm_interval = 300
+
+# This the ratio of the number of passes through the data gathering loop to
+# 1 second of real time.  This value allows the daemon to more accurately
+# track the values that are time based in some manner.  There isn't much
+# effect on shorter intervals like the average wind direction, but for longer
+# intervals such as the barometer trend, or 24 hour
+# rainfall totals, the error introduced can be easily noticed.
+# (OK, so maybe I'm a perfectionist.)
+# This value should be carried out to 3 decimal places.
+
+loop_ratio = 1.974
+
+# This should be set to an integer value that represents how many seconds you 
+# need to slow the daemon down.  If your loop ratio is less than 1, I highly
+# recommend that you set this to at least 1 so that the daemon will not make 
+# more than 1 loop per second.  Running too fast may produce unpredictable 
+# performance.
+
+slow = 0
+
+# This is where you can set thresholds for the various "silent" alarms.  
+# These settings are independant of the alarms set on the Vantage Pro console.
+
+bar_fall_q = -.09
+bar_rise_q = .09
+low_intemp_q = 40
+hi_intemp_q = 80
+low_inhum_q = 20
+hi_inhum_q = 90
+rain1_q = .75
+rainm15_q = .25
+rain24_q = 1.75
+storm_q = 2.25
+low_outtemp_q = -5
+hi_outtemp_q = 105
+windsp_q = 50
+avgwindsp_q = 30
+low_outdew_q = -15
+hi_outdew_q = 70
+heat_q = 105
+chill_q = 0
+
+# This is where you can define a script that vanprod will execute whenever an 
+# alarm threshold (silent or console) is crossed.  This is in addition to 
+# messages that will be written to your syslog.  Two arguments will be passed
+# to this script, the designator for which value has triggered the alarm, and
+# the current value.  Example: for a low outdoor temperature alarm, the 
+# arguments passed would be low_outtemp value.  The "designators" are simply
+# the threshold variables without the _q on the end.  If you have the 15 minute 
+# rainfall (flash flood) alarm set on your Vantage Pro console, when this 
+# triggers, it will be sent to your script with a designator of ff.  Standard 
+# out and Standard error will be captured from this script, and any output 
+# that is captured will be written to your syslog.
+
+alarm_action = 
